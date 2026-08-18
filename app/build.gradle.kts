@@ -4,9 +4,7 @@ plugins {
 
 android {
     namespace = "com.ralexg.siteblackhole"
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.ralexg.siteblackhole"
