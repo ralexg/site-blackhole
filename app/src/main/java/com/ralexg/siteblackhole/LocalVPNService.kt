@@ -5,15 +5,17 @@ import android.net.VpnService
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import java.io.FileInputStream
-import java.net.DatagramPacket
-import java.net.DatagramSocket
-import java.net.InetAddress
+import java.io.FileOutputStream
+import java.util.concurrent.Executors
 
 class LocalVpnService : VpnService(), Runnable {
 
     private var vpnInterface: ParcelFileDescriptor? = null
     private var vpnThread: Thread? = null
     private lateinit var blocklistManager: BlocklistManager
+    
+    // Cria um "pool" de trabalhadores para resolver os DNS em paralelo
+    private val executorService = Executors.newCachedThreadPool()
 
     override fun onCreate() {
         super.onCreate()
@@ -29,40 +31,50 @@ class LocalVpnService : VpnService(), Runnable {
 
     override fun run() {
         try {
-            // Configura a VPN para interceptar APENAS o tráfego de DNS (1.1.1.1)
             val builder = Builder()
                 .addAddress("10.0.0.2", 32)
-                .addRoute("1.1.1.1", 32) // Roteia apenas este IP para a VPN
-                .addDnsServer("1.1.1.1") // Força o celular a usar este DNS
+                .addRoute("1.1.1.1", 32) 
+                .addDnsServer("1.1.1.1") 
                 .setSession("SiteBlackholeVPN")
-
+                
             vpnInterface = builder.establish()
             Log.d("BlackholeVPN", "VPN Ativada! Escutando DNS...")
 
             val input = FileInputStream(vpnInterface?.fileDescriptor)
+            val output = FileOutputStream(vpnInterface?.fileDescriptor)
             val buffer = ByteArray(32767)
 
             while (!Thread.interrupted()) {
                 val length = input.read(buffer)
                 if (length > 0) {
                     val domain = DnsPacketHandler.extractDomainFromPacket(buffer, length)
-
+                    
                     if (domain != null) {
-                        Log.d("BlackholeVPN", "Requisição DNS para: $domain")
-
                         val blockedSites = blocklistManager.getBlockedDomains()
                         val isBlocked = blockedSites.any { domain.contains(it) }
 
                         if (isBlocked) {
-                            Log.d("BlackholeVPN", "BLOCKED: $domain jogado no buraco negro!")
-                            // Não fazemos nada. O pacote morre aqui.
-                            continue
+                            Log.d("BlackholeVPN", "BLOCKED: $domain - Retornando 127.0.0.1")
+                            val fakeResponse = DnsBlockResponder.createBlockResponse(buffer, length)
+                            output.write(fakeResponse)
                         } else {
-                            // Site permitido! Num cenário real e completo, aqui
-                            // repassaríamos o pacote para o 1.1.1.1 real.
-                            // Por ser um projeto introdutório, estamos focando primeiro
-                            // em identificar a interceptação com sucesso!
-                            Log.d("BlackholeVPN", "ALLOWED: $domain")
+                            Log.d("BlackholeVPN", "ALLOWED: $domain - Buscando resposta assíncrona...")
+                            
+                            // CRÍTICO: Copiamos o pacote atual porque a variável 'buffer' 
+                            // será sobrescrita pela próxima requisição instantaneamente!
+                            val requestCopy = buffer.copyOfRange(0, length)
+                            
+                            // Manda o pacote para um trabalhador em segundo plano
+                            executorService.execute {
+                                val response = DnsForwarder.forwardAndBuildResponse(requestCopy, length, this@LocalVpnService)
+                                if (response != null) {
+                                    // Bloqueia o output rapidinho só para garantir que dois 
+                                    // trabalhadores não tentem escrever ao mesmo tempo e embaralhem os bytes
+                                    synchronized(output) {
+                                        output.write(response)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -75,6 +87,7 @@ class LocalVpnService : VpnService(), Runnable {
     override fun onDestroy() {
         super.onDestroy()
         vpnThread?.interrupt()
+        executorService.shutdownNow() // Desliga os trabalhadores ao fechar
         vpnInterface?.close()
     }
 }

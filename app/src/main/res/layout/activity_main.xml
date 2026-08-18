@@ -1,30 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center">
+    android:padding="32dp">
 
-    <EditText
-        android:id="@+id/edtDomain"
+    <!-- Botão de Tema no Topo Direito -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end">
+        <Button
+            android:id="@+id/btnTheme"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tema"
+            app:icon="@android:drawable/ic_menu_manage" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/icon_block"
+            app:tint="?attr/colorOnBackground"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Site Blackhole"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnBackground"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bloqueie distrações definitivamente."
+            android:textSize="16sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginBottom="32dp"/>
+    </LinearLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Ex: instagram.com"
-        android:inputType="textUri" />
+        app:boxBackgroundMode="outline"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        android:layout_marginBottom="16dp">
 
-    <Button
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtDomain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textUri" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAdd"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Bloquear Para Sempre" />
+        android:layout_height="64dp"
+        android:text="Bloquear Para Sempre"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:backgroundTint="#D32F2F"
+        app:cornerRadius="12dp"
+        android:layout_marginBottom="16dp"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStartVpn"
         android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="Ativar Proteção"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:backgroundTint="#1976D2"
+        app:cornerRadius="12dp" />
+
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Sites no Buraco Negro:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnBackground"
         android:layout_marginTop="32dp"
-        android:text="Ativar Proteção" />
+        android:layout_marginBottom="8dp"/>
+
+    <ListView
+        android:id="@+id/listViewSites"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp" />
 
 </LinearLayout>
