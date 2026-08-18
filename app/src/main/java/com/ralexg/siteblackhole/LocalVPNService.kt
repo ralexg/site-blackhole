@@ -8,6 +8,7 @@ import java.io.FileInputStream
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
+import kotlin.compareTo
 
 class LocalVpnService : VpnService(), Runnable {
 
@@ -29,17 +30,18 @@ class LocalVpnService : VpnService(), Runnable {
 
     override fun run() {
         try {
-            // Configura a VPN para interceptar APENAS o tráfego de DNS (1.1.1.1)
             val builder = Builder()
                 .addAddress("10.0.0.2", 32)
-                .addRoute("1.1.1.1", 32) // Roteia apenas este IP para a VPN
-                .addDnsServer("1.1.1.1") // Força o celular a usar este DNS
+                .addRoute("1.1.1.1", 32)
+                .addDnsServer("1.1.1.1")
                 .setSession("SiteBlackholeVPN")
 
             vpnInterface = builder.establish()
             Log.d("BlackholeVPN", "VPN Ativada! Escutando DNS...")
 
             val input = FileInputStream(vpnInterface?.fileDescriptor)
+            // ADICIONAMOS O OUTPUT AQUI:
+            val output = FileOutputStream(vpnInterface?.fileDescriptor)
             val buffer = ByteArray(32767)
 
             while (!Thread.interrupted()) {
@@ -48,21 +50,20 @@ class LocalVpnService : VpnService(), Runnable {
                     val domain = DnsPacketHandler.extractDomainFromPacket(buffer, length)
 
                     if (domain != null) {
-                        Log.d("BlackholeVPN", "Requisição DNS para: $domain")
-
                         val blockedSites = blocklistManager.getBlockedDomains()
                         val isBlocked = blockedSites.any { domain.contains(it) }
 
                         if (isBlocked) {
                             Log.d("BlackholeVPN", "BLOCKED: $domain jogado no buraco negro!")
-                            // Não fazemos nada. O pacote morre aqui.
+                            // Fica no buraco negro (não faz nada)
                             continue
                         } else {
-                            // Site permitido! Num cenário real e completo, aqui
-                            // repassaríamos o pacote para o 1.1.1.1 real.
-                            // Por ser um projeto introdutório, estamos focando primeiro
-                            // em identificar a interceptação com sucesso!
-                            Log.d("BlackholeVPN", "ALLOWED: $domain")
+                            Log.d("BlackholeVPN", "ALLOWED: $domain - Buscando resposta...")
+                            // Envia para o DNS real, pega a resposta e escreve de volta no celular
+                            val response = DnsForwarder.forwardAndBuildResponse(buffer, length, this)
+                            if (response != null) {
+                                output.write(response)
+                            }
                         }
                     }
                 }
