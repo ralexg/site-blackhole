@@ -75,5 +75,24 @@
         android:textStyle="bold"
         android:backgroundTint="#1976D2"
         app:cornerRadius="12dp" />
+			<!-- Título da Lista -->
+		<TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sites no Buraco Negro:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#212121"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- A Lista em si -->
+    <ListView
+        android:id="@+id/listViewSites"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp" />
 
 </LinearLayout>
