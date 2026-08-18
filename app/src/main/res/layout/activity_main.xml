@@ -4,37 +4,53 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="32dp"
-    android:gravity="center"
-    android:background="#FAFAFA">
+    android:padding="32dp">
 
-    <!-- Ícone no topo da tela (usando o ic_shield que você criou) -->
-    <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/icon_block"
-        app:tint="#212121"
-        android:layout_marginBottom="16dp"/>
-
-    <!-- Título do App -->
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Botão de Tema no Topo Direito -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Site Blackhole"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:textColor="#212121"
-        android:layout_marginBottom="8dp"/>
+        android:gravity="end">
+        <Button
+            android:id="@+id/btnTheme"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tema"
+            app:icon="@android:drawable/ic_menu_manage" />
+    </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bloqueie distrações definitivamente."
-        android:textSize="16sp"
-        android:textColor="#757575"
-        android:layout_marginBottom="48dp"/>
+        android:orientation="vertical"
+        android:gravity="center">
 
-    <!-- Campo de texto moderno -->
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/icon_block"
+            app:tint="?attr/colorOnBackground"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Site Blackhole"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnBackground"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bloqueie distrações definitivamente."
+            android:textSize="16sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginBottom="32dp"/>
+    </LinearLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -44,7 +60,7 @@
         app:boxCornerRadiusTopEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusBottomEnd="12dp"
-        android:layout_marginBottom="24dp">
+        android:layout_marginBottom="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edtDomain"
@@ -53,7 +69,6 @@
             android:inputType="textUri" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Botão de Bloquear (Vermelho/Alerta) -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAdd"
         android:layout_width="match_parent"
@@ -65,7 +80,6 @@
         app:cornerRadius="12dp"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Botão de Ativar a VPN (Azul/Seguro) -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStartVpn"
         android:layout_width="match_parent"
@@ -75,18 +89,17 @@
         android:textStyle="bold"
         android:backgroundTint="#1976D2"
         app:cornerRadius="12dp" />
-			<!-- Título da Lista -->
-		<TextView
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sites no Buraco Negro:"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#212121"
+        android:textColor="?attr/colorOnBackground"
         android:layout_marginTop="32dp"
         android:layout_marginBottom="8dp"/>
 
-    <!-- A Lista em si -->
     <ListView
         android:id="@+id/listViewSites"
         android:layout_width="match_parent"
