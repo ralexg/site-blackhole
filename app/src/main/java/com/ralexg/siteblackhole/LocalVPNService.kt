@@ -5,6 +5,7 @@ import android.net.VpnService
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -53,10 +54,11 @@ class LocalVpnService : VpnService(), Runnable {
                         val blockedSites = blocklistManager.getBlockedDomains()
                         val isBlocked = blockedSites.any { domain.contains(it) }
 
-                        if (isBlocked) {
-                            Log.d("BlackholeVPN", "BLOCKED: $domain jogado no buraco negro!")
-                            // Fica no buraco negro (não faz nada)
-                            continue
+												if (isBlocked) {
+                            Log.d("BlackholeVPN", "BLOCKED: $domain - Retornando 127.0.0.1")
+                            // Cria a resposta falsa e devolve para o celular na mesma hora!
+                            val fakeResponse = DnsBlockResponder.createBlockResponse(buffer, length)
+                            output.write(fakeResponse)
                         } else {
                             Log.d("BlackholeVPN", "ALLOWED: $domain - Buscando resposta...")
                             // Envia para o DNS real, pega a resposta e escreve de volta no celular
